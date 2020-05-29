@@ -1,7 +1,7 @@
 """
 userGiude.py中用到的make_interp_spline()的官方examples
 from:https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.make_interp_spline.html
-
+python 3.7
 """
 import numpy as np
 
