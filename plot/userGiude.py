@@ -1,4 +1,5 @@
 """
+python 3.7
 将x,y的散点连成光滑的曲线，然后显示出来
 问题：make_interp_spline()函数不理解。
 """
