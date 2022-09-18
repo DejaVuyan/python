@@ -6,6 +6,7 @@ from PIL import Image
 import os
 from torchvision.transforms import InterpolationMode,ToTensor,Normalize
 import math
+import cv2
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
@@ -51,23 +52,45 @@ def diagnose_network(net, name='network'):
     print(name)
     print(mean)
 
-
-def save_image(image_numpy, image_path, aspect_ratio=1.0):
-    """Save a numpy image to the disk
-
-    Parameters:
-        image_numpy (numpy array) -- input numpy array
-        image_path (str)          -- the path of the image
+def read_image(image_path,channel=3):
     """
+    save image by opencv
+    @param image_path:
+    @param channel: if is 3,save colorful image,if is 1 save gray image
+    @return: image,numpy typy,(H,W,C),uint8
+    """
+    img = cv2.imread(image_path)
+    if channel==1:
+      img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # convert gray image
+    return img
 
-    image_pil = Image.fromarray(image_numpy)
-    h, w, _ = image_numpy.shape
 
-    if aspect_ratio > 1.0:
-        image_pil = image_pil.resize((h, int(w * aspect_ratio)), InterpolationMode.BICUBIC)
-    if aspect_ratio < 1.0:
-        image_pil = image_pil.resize((int(h / aspect_ratio), w), InterpolationMode.BICUBIC)
-    image_pil.save(image_path)
+# def save_image(image_numpy, image_path, aspect_ratio=1.0):
+#     """Save a numpy image to the disk
+#
+#     Parameters:
+#         image_numpy (numpy array) -- input numpy array
+#         image_path (str)          -- the path of the image
+#     """
+#
+#     image_pil = Image.fromarray(image_numpy)
+#     h, w, _ = image_numpy.shape
+#
+#     if aspect_ratio > 1.0:
+#         image_pil = image_pil.resize((h, int(w * aspect_ratio)), InterpolationMode.BICUBIC)
+#     if aspect_ratio < 1.0:
+#         image_pil = image_pil.resize((int(h / aspect_ratio), w), InterpolationMode.BICUBIC)
+#     image_pil.save(image_path)
+
+def save_image(image_numpy, image_path):
+    """
+    save image using opencv
+    @param image_numpy:
+    @param image_path:
+    @param channel:
+    @return:
+    """
+    cv2.imwrite(image_path, image_numpy)
 
 
 def print_numpy(x, val=True, shp=False):
@@ -111,11 +134,11 @@ def mkdir(path):
 def fft_2D(input_Tensor,mask_ratio = 0.25):
     """使用2D傅里叶变换，将经过base_dataset，transformer,标准化后的(C,H,W)的Tensor
     转换到频域，然后使用低通滤波器滤波，面积为原图*mask_ratio
-
+    假设input_tensor是个灰度图像，输入是(H,W)
     """
     #print(input_Tensor.shape)
-    img = input_Tensor.squeeze(dim=0)  # (H,W)
-
+    # img = input_Tensor.squeeze(dim=0)  # (H,W)
+    img = input_Tensor
     # 创建一个低通滤波器
     mask = np.zeros(img.shape)
     crow = int((img.shape[0]) / 2)  # 中心位置
@@ -132,16 +155,16 @@ def fft_2D(input_Tensor,mask_ratio = 0.25):
     ishift = np.fft.ifftshift(fshift)  # 逆中心化
     iimg = np.fft.ifft2(ishift)  # 傅里叶逆变换
     iimg = np.abs(iimg)  # 去掉虚部 此时数据为float64的ndarray
-    iimg = np.expand_dims(iimg, axis=-1)  # 回到了原来的函数
+    # iimg = np.expand_dims(iimg, axis=-1)  # 回到了原来的函数
     #print(iimg.shape)
     # 变成Tensor
-    to_tensor = ToTensor()
-    iimg_Tensor = to_tensor(iimg).float()  # 从double float64转换为float 32
-    # 归一化
-    nor = Normalize((0.5,), (0.5,))
-    iimg_Tensor = nor(iimg_Tensor)
+    # to_tensor = ToTensor()
+    # iimg_Tensor = to_tensor(iimg).float()  # 从double float64转换为float 32
+    # # 归一化
+    # nor = Normalize((0.5,), (0.5,))
+    # iimg_Tensor = nor(iimg_Tensor)
 
-    return iimg_Tensor
+    return iimg
 
 def print_para(network):
     # 打印网络的层名和参
