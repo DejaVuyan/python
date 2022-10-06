@@ -1,0 +1,1 @@
+python kspace.py --input /data/yuzun/stytr_008_SE10_out_256 --output /data/yuzun/stytr_008_SE10_out_256_kspace_125 --ratio 0.125

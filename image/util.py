@@ -133,7 +133,9 @@ def mkdir(path):
 
 def fft_2D(input_Tensor,mask_ratio = 0.25):
     """使用2D傅里叶变换，将经过base_dataset，transformer,标准化后的(C,H,W)的Tensor
-    转换到频域，然后使用低通滤波器滤波，面积为原图*mask_ratio
+    转换到频域，然后使用低通滤波器滤波，将高频部分即纹理细节滤除，只剩下低频部分的形状轮廓
+    滤波器的形状为以原图中心为中心的，面积为mask_ratio*input_tensor的一个矩形，除了这个矩形之外的全部置为0
+    所以mask_ratio越小，保留的细节就越少
     假设input_tensor是个灰度图像，输入是(H,W)
     """
     #print(input_Tensor.shape)
